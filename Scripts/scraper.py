@@ -83,3 +83,96 @@ class PlayStoreScraper:
         return processed
     
     
+    def scrape_all_banks(self):
+        all_reviews = []
+        app_info_list = []
+
+        print("=" * 60)
+        print("Starting Google Play Store Review Scraper")
+        print("=" * 60)
+
+         # --- Phase 1: Fetch App Info ---
+        print("\n[1/2] Fetching app information...")
+        for bank_code, app_id in self.app_ids[0].items():
+            print(f"\n{bank_code}: {self.bank_names[bank_code]}")
+            print(f"App ID: {app_id}")
+            app_info = self.get_app_info(app_id)
+            if app_info:
+                app_info['bank_code'] = bank_code
+                app_info['bank_name'] = self.bank_names[bank_code]
+
+                app_info_list.append(app_info)
+                print(f'Current Ratings: {app_info['score']}')
+                print(f"Total Ratimgs: :{app_info['ratings']}")
+                print(f"Total Reviews: {app_info['reviews']}")
+        
+        # Save the gathered app info into csv file
+        if app_info_list:
+            app_info_df=pd.DataFrame(app_info_list)
+            os.makedirs(DATA_PATHS['raw'],exist_ok=True)
+            app_info_df.to_csv(f"{DATA_PATHS['raw']}/app_info.csv",index=False)
+            print(f"\nApp information saved to {DATA_PATHS['raw']}/app_info.csv")
+
+        # --- Phase 2: Scrape Reviews ---
+        print("\n[2/2] Scraping reviews for each bank app...")
+        # Use tqdm to show a progress bar for the banks
+        for bank_code, app_id in tqdm(self.app_ids.items(), desc="Banks"):
+            # Fetch the reviews
+            reviews_data = self.scrape_reviews(app_id, self.reviews_per_bank)
+            if reviews_data:
+                # Process and format the data
+                processed = self.process_reviews(reviews_data, bank_code)
+                all_reviews.extend(processed)
+                print(f"Collected {len(processed)} reviews for {self.bank_names[bank_code]}")
+            else:
+                print(f"WARNING: No reviews collected for {self.bank_names[bank_code]}")
+
+            # Small delay between banks to be polite to the server
+            time.sleep(2)
+
+        # --- Phase 3: Save Data ---
+        if all_reviews:
+            df=pd.DataFrame(all_reviews)
+
+            # Save raw data to csv
+            os.makedirs(DATA_PATHS['raw'], exist_ok=True)
+            df.to_csv(DATA_PATHS['raw_reviews'], index=False)
+
+            print("\n" + "=" * 60)
+            print("Scraping Complete!")
+            print("=" * 60)
+            print(f"\nTotal reviews collected: {len(df)}")
+            
+            # Print stats per bank
+            print(f"Reviews per bank:")
+            for bank_code in self.bank_names.keys():
+                count = len(df[df['bank_code'] == bank_code])
+                print(f"  {self.bank_names[bank_code]}: {count}")
+
+            print(f"\nData saved to: {DATA_PATHS['raw_reviews']}")
+
+            return df
+        else:
+            print("\nERROR: No reviews were collected!")
+            return pd.DataFrame()
+
+    def display_sample_reviews(self, df, n=3):
+        """
+        Display sample reviews from each bank to verify data quality.
+        """
+        print("\n" + "=" * 60)
+        print("Sample Reviews")
+        print("=" * 60)
+
+        for bank_code in self.bank_names.keys():
+            bank_df = df[df['bank_code'] == bank_code]
+            if not bank_df.empty:
+                print(f"\n{self.bank_names[bank_code]}:")
+                print("-" * 60)
+                samples = bank_df.head(n)
+                for idx, row in samples.iterrows():
+                    print(f"\nRating: {'⭐' * row['rating']}")
+                    print(f"Review: {row['review_text'][:200]}...")
+                    print(f"Date: {row['review_date']}")
+    
+        
