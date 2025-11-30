@@ -137,4 +137,101 @@ class ReviewPreprocessor:
         self.df=self.df.reset_index(drop=True)
         print(f"Final dataset contains {len(self.df)} reviews.")
 
+    def save_data(self):
+        # Print a message indicating saving has started
+        print(f"\nSaving processed data ...")
+
+        try:
+            
+            os.makedirs(os.path.dirname(self.output_path), exist_ok=True)
+            self.df.to_csv(self.output_path, index=False)
+            print(f"Processed data saved to {self.output_path}")
+
+            self.stats['final_count']=len(self.df)
+            return True
+        except Exception as e:
+            print(f"Error saving data: {str(e)}")
+            return False
+    def generate_report(self):
+        print("\nData Preprocessing Report:")
+        print("\n"+"="*60)
+        print("PREPROCESSING REPORT")
+        print("="*60)
         
+        print(f"\nOriginal records: {self.stats.get('original_count', 0)}")
+        print(f"Records with missing critical data: {self.stats.get('rows_removed_missing', 0)}")
+        print(f"Empty reviews removed: {self.stats.get('empty_reviews_removed', 0)}")
+        print(f"Invalid ratings removed: {self.stats.get('invalid_ratings_removed', 0)}")
+        print(f"Final records: {self.stats.get('final_count', 0)}")
+
+        if self.stats.get('original_count', 0) > 0:
+            retention_rate = (self.stats.get('final_count', 0) / self.stats.get('original_count', 0)) * 100
+            error_rate = 100 - retention_rate
+            print(f"\nData Retention Rate: {retention_rate:.2f}%")
+            print(f"Data Error Rate: {error_rate:.2f}%")
+
+            if error_rate < 5:
+                print("Data Quality: Excellent")
+            elif error_rate < 10:
+                print("Data Quality: Good")
+            else:
+                print("Data Quality: Poor")
+        
+        if self.df is not None:
+            print("\nReviews per Bank:")
+            bank_counts=self.df['bank_name'].value_counts()
+            for bank, count in bank_counts.items():
+                print(f"{bank}: {count} reviews")
+            
+            print("\nRatings Distribution:")
+            rating_counts=self.df['rating'].value_counts().sort_index(ascending=False)
+            for rating, count in rating_counts.items():
+                pct = (count / len(self.df)) * 100
+                print(f"  {'⭐' * int(rating)}: {count} ({pct:.1f}%)")
+            
+            print(f"\nDate range: {self.df['review_date'].min()} to {self.df['review_date'].max()}")
+
+            # Print statistics about the length of the review texts
+            print(f"\nText statistics:")
+            print(f"  Average length: {self.df['text_length'].mean():.0f} characters")
+            print(f"  Median length: {self.df['text_length'].median():.0f} characters")
+            print(f"  Min length: {self.df['text_length'].min()}")
+            print(f"  Max length: {self.df['text_length'].max()}")
+
+    def process(self):
+        print("=" * 60)
+        print("STARTING DATA PREPROCESSING")
+        print("=" * 60)
+
+    
+        if not self.load_data():
+            return False
+
+        self.check_missing_data()
+        self.handle_missing_values()
+        self.normalize_dates()
+        self.clean_text()
+        self.validate_ratings()
+        self.prepare_final_output()
+
+        if self.save_data():
+            self.generate_report()
+            return True
+
+        return False
+
+
+def main():
+    preprocessor = ReviewPreprocessor()
+    success = preprocessor.process()
+    if success:
+        print("\n✓ Preprocessing completed successfully!")
+        return preprocessor.df
+    else:
+        print("\n✗ Preprocessing failed!")
+        return None
+
+
+
+if __name__ == "__main__":
+    processed_df = main()
