@@ -115,4 +115,26 @@ class ReviewPreprocessor:
         # Record the number of invalid ratings removed
         self.stats['invalid_ratings_removed']= len(invalid)
 
-    
+    def prepare_final_output(self):
+        print("\n[6/6] Preparing final output...")
+        output_columns=[
+            'review_id',
+            'review_text',
+            'rating',
+            'review_date',
+            'review_year',
+            'review_month',
+            'bank_code',
+            'bank_name',
+            'user_name',
+            'thumbs_up',
+            'text_length',
+            'source'
+        ]
+        output_columns=[col for col in output_columns if col in self.df.columns]
+        self.df=self.df[output_columns]
+
+        self.df=self.df.reset_index(drop=True)
+        print(f"Final dataset contains {len(self.df)} reviews.")
+
+        
