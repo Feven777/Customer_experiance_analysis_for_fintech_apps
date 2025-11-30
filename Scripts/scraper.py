@@ -190,7 +190,7 @@ class PlayStoreScraper:
         return df
 
 
-if __name__ == "__main__":
-    reviews_df = main()
+    if __name__ == "__main__":
+        reviews_df = main()
 
         
