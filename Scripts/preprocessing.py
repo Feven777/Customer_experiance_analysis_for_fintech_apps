@@ -221,17 +221,17 @@ class ReviewPreprocessor:
         return False
 
 
-def main():
-    preprocessor = ReviewPreprocessor()
-    success = preprocessor.process()
-    if success:
-        print("\n✓ Preprocessing completed successfully!")
-        return preprocessor.df
-    else:
-        print("\n✗ Preprocessing failed!")
-        return None
+    def main():
+        preprocessor = ReviewPreprocessor()
+        success = preprocessor.process()
+        if success:
+            print("\n✓ Preprocessing completed successfully!")
+            return preprocessor.df
+        else:
+            print("\n✗ Preprocessing failed!")
+            return None
 
 
 
-if __name__ == "__main__":
-    processed_df = main()
+    if __name__ == "__main__":
+        processed_df = main()

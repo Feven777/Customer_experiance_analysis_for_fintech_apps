@@ -175,22 +175,22 @@ class PlayStoreScraper:
                     print(f"Review: {row['review_text'][:200]}...")
                     print(f"Date: {row['review_date']}")
     
-    def main():
+def main():
 
-        # Initialize scraper
-        scraper = PlayStoreScraper()
+    # Initialize scraper
+    scraper = PlayStoreScraper()
 
-        # Scrape all reviews
-        df = scraper.scrape_all_banks()
+    # Scrape all reviews
+    df = scraper.scrape_all_banks()
 
-        # Display samples if data was collected
-        if not df.empty:
-            scraper.display_sample_reviews(df)
+    # Display samples if data was collected
+    if not df.empty:
+        scraper.display_sample_reviews(df)
 
-        return df
+    return df
 
 
-    if __name__ == "__main__":
-        reviews_df = main()
+if __name__ == "__main__":
+    reviews_df = main()
 
         
