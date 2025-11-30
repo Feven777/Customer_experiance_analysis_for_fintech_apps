@@ -79,4 +79,40 @@ class ReviewPreprocessor:
             print(f"Date range:{self.df['review_date'].min()} to {self.df['review_date'].max()}")
         except Exception as e:
             print(f"WARNING: Error normalizing dates: {str(e)}")
+
+    def clean_text(self):
+        print("\n[4/6] Cleaning review text...")
+        
+        def clean_review_text(text):
+            if pd.isna(text) or text == '':
+                return ''
+            text=str(text)
+            text = re.sub(r'\s+', ' ', text)
+            text = text.strip()
+            return text
+        self.df['review_text']= self.df['review_text'].apply(clean_review_text)
+        before_count=len(self.df)
+        self.df=self.df[self.df['review_text'].str.len()>0]
+        removed=before_count-len(self.df)
+        if removed>0:
+            print(f"Removed {removed} reviews with empty text after cleaning")
+        
+        self.df['text-length']=self.df['review_text'].str.len()
+
+        self.stats['empty_reviews_removed']= removed
+        self.stats['count_after_text_cleaning']=len(self.df)
+
+    def validate_ratings(self):
+        print("\n[5/6] Validating ratings...")
+        invalid = self.df[(self.df['rating'] < 1) | (self.df['rating'] > 5)]
+        
+        if len(invalid)>0:
+            print(f"WARNING: Found {len(invalid)} reviews with invalid ratings.")
+            self.df = self.df[(self.df['rating'] >= 1) & (self.df['rating'] <= 5)]
+        else:
+            print("All ratings are valid.")
+        
+        # Record the number of invalid ratings removed
+        self.stats['invalid_ratings_removed']= len(invalid)
+
     
