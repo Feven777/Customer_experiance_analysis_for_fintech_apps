@@ -20,8 +20,8 @@ BANK_NAMES={
 
 # Scraping Configuration
 SCRAPING_CONFIG={
-    'rewiews_per_bank' : int(os.getenv('REVIEWS_PER_BANK',400)),
-    'max-retries': int(os.getenv('MAX_RETRIES',3)),
+    'reviews_per_bank' : int(os.getenv('REVIEWS_PER_BANK',400)),
+    'max_retries': int(os.getenv('MAX_RETRIES',3)),
     'lang': 'en',
     'country': 'et'
 }
@@ -31,7 +31,7 @@ DATA_PATHS={
     'raw':'data/raw',
     'processed':'data/processed',
     'raw_reviews':'data/raw/reviews_raw.csv',
-    'processesd_reviews':'data/processed/reviews_processed.csv',
+    'processed_reviews':'data/processed/reviews_processed.csv',
     'sentiment_results':'data/processed/reviews_with_sentiments.csv',
     'final_results':'data/processed/reviews_final.csv'
 }
