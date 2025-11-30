@@ -63,3 +63,23 @@ class PlayStoreScraper:
                     return []
                 
         return []
+
+    def process_reviews(self, reviews_data, bank_code):
+        processed= []
+        for review in reviews_data:
+            processed.append({
+                'review_id': review.get('reviewId',''),
+                'review_text': review.get('content',''),
+                'rating': review.get('score',0),
+                'review_date': review.get('at',datetime.now()),
+                'user_name': review.get('userName',''),
+                'thumbs_up': review.get('thumbsUpCount',0),
+                'bank_code': bank_code,
+                'bank_name': self.bank_names[bank_code],
+                'app_id': review.get('reviewCreatedVersion','N/A'),
+                'source': 'Google Play Store'
+            })
+        
+        return processed
+    
+    
