@@ -1,10 +1,3 @@
-"""
-Google Play Store Review Scraper
-Task 1: Data Collection
-
-This script scrapes user reviews from Google Play Store for three Ethiopian banks.
-Target: 400+ reviews per bank (1200 total minimum)
-"""
 
 import sys
 import os
